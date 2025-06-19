@@ -74,6 +74,7 @@ collect-sarif-results:
     # Prepare directory and move artifacts
     - mkdir -p sarif-input
     - cp ./*.sarif sarif-input/ || true
+    - cp target/bom.json sarif-input/ || true
     - ls sarif-input
 
     # Create summary and HTML report
