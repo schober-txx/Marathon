@@ -1,5 +1,6 @@
 stages:
   - scan
+  - aggregate-sarif
 
 sast-scans:
   stage: scan
@@ -56,5 +57,45 @@ semgrep-scan:
     paths:
       - ./semgrep-results.sarif
     name: semgrep-scan-results.sarif
+    when: always
+  allow_failure: true
+
+collect-sarif-results:
+  stage: aggregate-sarif
+  image: python:3.11
+  needs:
+    - job: sast-scans
+      artifacts: true
+    - job: semgrep-scan
+      artifacts: true
+  script:
+    - pip install sarif-tools jq
+
+    # Prepare directory and move artifacts
+    - ls -al
+    - mkdir -p sarif-input
+    - cp sast-artifacts/*.sarif sarif-input/ || true
+    - cp semgrep-scan-results.sarif/semgrep-results.sarif sarif-input/ || true
+
+    # Optional: List SARIF files
+    - echo "Listing SARIF files:" && find sarif-input -type f
+
+    # Create summary and HTML report
+    - sarif summary sarif-input
+    - sarif html -o summary.html sarif-input
+
+    # Write SBOM summary to job log
+    - echo "### 📦 SBOM Summary"
+    - |
+      if [ -f sarif-input/bom.json ]; then
+        jq -r '.components[] | "- \(.name) \(.version) → \(.licenses[0].license.id // "Unknown")"' sarif-input/bom.json
+      else
+        echo "No SBOM found"
+      fi
+
+  artifacts:
+    paths:
+      - summary.html
+    name: sarif-summary
     when: always
   allow_failure: true
