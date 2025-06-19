@@ -13,7 +13,6 @@ sast-scans:
     - curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
     - grype dir:. -o sarif > grype-results.sarif || true
 
-    # ======================================================
     # Download and prepare SpotBugs CLI + FindSecBugs plugin
     - wget -O spotbugs.tgz https://github.com/spotbugs/spotbugs/releases/download/4.9.3/spotbugs-4.9.3.tgz
     - tar -xzf spotbugs.tgz
@@ -26,9 +25,14 @@ sast-scans:
       spotbugs/bin/spotbugs -sarif:/tmp/raw-spotbugs-output.txt -effort:max -low -auxclasspath lib:target/classes target/classes > /tmp/raw-spotbugs-output.txt
       grep -A100000 '{"version"' /tmp/raw-spotbugs-output.txt > ./spotbugs-results.sarif
 
+    # Hadolint SARIF
+    - curl -sSfL https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
+    - chmod +x /usr/local/bin/hadolint
+    - hadolint --format sarif Dockerfile > hadolint-results.sarif || true
   artifacts:
     paths:
       - target/bom.json
       - grype-results.sarif
       - spotbugs-results.sarif
+      - hadolint-results.sarif
     name: sast-artifacts
