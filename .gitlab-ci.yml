@@ -37,7 +37,7 @@ sast-scans:
     - tar -xzf trufflehog.tar.gz
     - mv trufflehog /usr/local/bin/
     - chmod +x /usr/local/bin/trufflehog
-    - trufflehog git --repo . --base "$(git rev-parse HEAD)" --exclude-paths=.truffleignore || true
+    - trufflehog git file://. --branch "$(git rev-parse --abbrev-ref HEAD)" --exclude-paths .truffleignore || true
 
   artifacts:
     paths:
