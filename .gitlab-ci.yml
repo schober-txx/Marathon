@@ -60,21 +60,44 @@ semgrep-scan:
     when: always
   allow_failure: true
 
-dast-baseline-scan:
+guided-dast-scan:
   stage: scan
-  image: zaproxy/zap-stable:latest
+  image: eclipse-temurin:11-jdk
+  services: []
   script:
-    # Start your app (replace with correct path and port)
-    - ./integration/start-integration.sh &
+    # Install required tools
+    - apt-get update && apt-get install -y wget unzip xvfb curl
+
+    # Build the application
+    - mvn clean install -DskipTests
+
+    # Start integration app (adjust the path if needed)
+    - cd integration && ./start-integration.sh &
+    - cd ..
+
+    # Download and set up OWASP ZAP
+    - wget https://github.com/zaproxy/zaproxy/releases/download/v2.15.0/ZAP_2.15.0_Crossplatform.zip
+    - unzip ZAP_2.15.0_Crossplatform.zip
+    - mv ZAP_2.15.0 ZAP
+    - rm ZAP_2.15.0_Crossplatform.zip
+
+    # Start ZAP in headless mode (Xvfb required)
+    - xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' \
+      ./ZAP/zap.sh -daemon -port 7777 -host 127.0.0.1 \
+      -config api.disablekey=true \
+      -config api.addrs.addr.name=.* \
+      -config api.addrs.addr.regex=true \
+      -config api.incerrordetails=true &
     - sleep 30
 
-    # Run ZAP Baseline Scan
-    - zap-baseline.py -t http://localhost:9090/marathon -J zap-report.json -r zap-report.html || true
+    # Run your guided scan script
+    - ./integration/zap-guided-scan.sh
+
   artifacts:
     paths:
-      - zap-report.html
-      - zap-report.json
-    name: zap-dast-report
+      - /tmp/report.html
+    name: zap-guided-report
+    when: always
   allow_failure: true
 
 
