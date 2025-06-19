@@ -29,6 +29,14 @@ sast-scans:
     - curl -sSfL https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
     - chmod +x /usr/local/bin/hadolint
     - hadolint --format sarif Dockerfile > hadolint-results.sarif || true
+
+
+    # TruffleHog secret scan
+    - touch .truffleignore
+    - curl -sSfL https://github.com/trufflesecurity/trufflehog/releases/latest/download/trufflehog-linux-amd64 -o /usr/local/bin/trufflehog
+    - chmod +x /usr/local/bin/trufflehog
+    - trufflehog git --repo . --base "$(git rev-parse HEAD)" --exclude-paths=.truffleignore || true
+
   artifacts:
     paths:
       - target/bom.json
