@@ -62,13 +62,7 @@ semgrep-scan:
 
 dast-baseline-scan:
   stage: scan
-  image: owasp/zap2docker-stable
-  services:
-    - name: docker:dind
-      alias: docker
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
+  image: ghcr.io/zaproxy/zaproxy:stable
   script:
     - apk add curl bash
     # Start your app (replace with correct path and port)
