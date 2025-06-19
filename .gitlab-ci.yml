@@ -51,10 +51,10 @@ semgrep-scan:
   stage: scan
   image: returntocorp/semgrep@sha256:8f85dbfb5d38592d0b916caac855cf18facba40674988caf763d52b9fe916694
   script:
-    - semgrep scan --sarif --config auto . --output /tmp/semgrep-results.sarif || true
+    - semgrep scan --sarif --config auto . --output ./semgrep-results.sarif || true
   artifacts:
     paths:
-      - /tmp/semgrep-results.sarif
+      - ./semgrep-results.sarif
     name: semgrep-scan-results.sarif
     when: always
   allow_failure: true
