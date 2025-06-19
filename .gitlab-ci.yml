@@ -4,15 +4,31 @@ stages:
 sast-scans:
   stage: sast
   image: maven:3.8.8-eclipse-temurin-11
+  allow_failure: true
   script:
     - mvn clean install
     - mvn org.cyclonedx:cyclonedx-maven-plugin:2.7.9:makeAggregateBom
+
+    # Install Grype and run scan
+    - curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+    - grype dir:. -o sarif > grype-results.sarif || true
+
+    # ======================================================
+    # Download and prepare SpotBugs CLI + FindSecBugs plugin
+    - wget -O spotbugs.tgz https://github.com/spotbugs/spotbugs/releases/download/4.9.3/spotbugs-4.9.3.tgz
+    - tar -xzf spotbugs.tgz
+    - mv spotbugs-*/ spotbugs/
+    - wget -O findsecbugs.jar https://search.maven.org/remotecontent?filepath=com/h3xstream/findsecbugs/findsecbugs-plugin/1.12.0/findsecbugs-plugin-1.12.0.jar
+    - mv findsecbugs.jar spotbugs/plugin/.
+
+    # Run SpotBugs CLI in SARIF format
     - |
-      curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
-      grype dir:. -o sarif > grype-results.sarif || true
+      spotbugs/bin/spotbugs -sarif:/tmp/raw-spotbugs-output.txt -effort:max -low -auxclasspath lib:target/classes target/classes > /tmp/raw-spotbugs-output.txt
+      grep -A100000 '{"version"' /tmp/raw-spotbugs-output.txt > /tmp/spotbugs-results.sarif
+
   artifacts:
     paths:
       - target/bom.json
       - grype-results.sarif
+      - /tmp/spotbugs-results.sarif
     name: sast-artifacts
-  allow_failure: true
