@@ -33,7 +33,7 @@ sast-scans:
 
     # TruffleHog secret scan
     - touch .truffleignore
-    - curl -sSfL https://github.com/trufflesecurity/trufflehog/releases/download/v3.89.2/trufflehog_3.89.2_linux_amd64.tar.gz -o /usr/local/bin/trufflehog.tar.gz
+    - curl -sSfL https://github.com/trufflesecurity/trufflehog/releases/download/v3.89.2/trufflehog_3.89.2_linux_amd64.tar.gz -o trufflehog.tar.gz
     - tar -xzf trufflehog.tar.gz
     - mv trufflehog /usr/local/bin/
     - chmod +x /usr/local/bin/trufflehog
