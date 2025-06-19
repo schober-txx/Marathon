@@ -64,6 +64,7 @@ dast-baseline-scan:
   stage: scan
   image: zaproxy/zap-stable:latest
   script:
+    - whoami  # should return 'root'
     - apt-get update && apt-get install -y python3 curl git
     - ln -s /usr/bin/python3 /usr/bin/python  # For python compatibility if needed
 
