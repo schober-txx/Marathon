@@ -69,6 +69,7 @@ collect-sarif-results:
     - job: semgrep-scan
       artifacts: true
   script:
+    - apt-get update && apt-get install -y jq
     - pip install sarif-tools jq
 
     # Prepare directory and move artifacts
