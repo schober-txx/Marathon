@@ -1,25 +1,18 @@
 stages:
   - sast
 
-sast-cyclonedx:
+sast-scans:
   stage: sast
   image: maven:3.8.8-eclipse-temurin-11
   script:
     - mvn clean install
     - mvn org.cyclonedx:cyclonedx-maven-plugin:2.7.9:makeAggregateBom
-  artifacts:
-    paths:
-      - target/bom.json
-  allow_failure: true
-
-sast-grype:
-  stage: sast
-  image: maven:3.8.8-eclipse-temurin-11
-  script:
     - |
       curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
       grype dir:. -o sarif > grype-results.sarif || true
   artifacts:
     paths:
+      - target/bom.json
       - grype-results.sarif
+    name: sast-artifacts
   allow_failure: true
