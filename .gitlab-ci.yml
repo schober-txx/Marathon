@@ -24,11 +24,11 @@ sast-scans:
     # Run SpotBugs CLI in SARIF format
     - |
       spotbugs/bin/spotbugs -sarif:/tmp/raw-spotbugs-output.txt -effort:max -low -auxclasspath lib:target/classes target/classes > /tmp/raw-spotbugs-output.txt
-      grep -A100000 '{"version"' /tmp/raw-spotbugs-output.txt > /tmp/spotbugs-results.sarif
+      grep -A100000 '{"version"' /tmp/raw-spotbugs-output.txt > ./spotbugs-results.sarif
 
   artifacts:
     paths:
       - target/bom.json
       - grype-results.sarif
-      - /tmp/spotbugs-results.sarif
+      - spotbugs-results.sarif
     name: sast-artifacts
