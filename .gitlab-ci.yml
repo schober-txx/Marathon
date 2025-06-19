@@ -64,20 +64,12 @@ dast-baseline-scan:
   stage: scan
   image: zaproxy/zap-stable:latest
   script:
-    - whoami  # should return 'root'
-    - apt-get update && apt-get install -y python3 curl git
-    - ln -s /usr/bin/python3 /usr/bin/python  # For python compatibility if needed
-
-    # Get baseline scan script
-    - curl -O https://raw.githubusercontent.com/zaproxy/zap-extensions/main/docker/zap-baseline.py
-    - chmod +x zap-baseline.py
-
     # Start your app (replace with correct path and port)
     - ./integration/start-integration.sh &
     - sleep 30
 
     # Run ZAP Baseline Scan
-    - python zap-baseline.py -t http://localhost:9090/marathon -J zap-report.json -r zap-report.html || true
+    - zap-baseline.py -t http://localhost:9090/marathon -J zap-report.json -r zap-report.html || true
   artifacts:
     paths:
       - zap-report.html
