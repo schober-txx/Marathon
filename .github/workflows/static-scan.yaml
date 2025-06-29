@@ -66,22 +66,6 @@ jobs:
 
       # ======================================================
 
-      - name: Syft SBOM Generator
-        id: sbom
-        uses: anchore/scan-action@be7a22da4f22dde446c4c4c099887ff5b256526c
-        with:
-          image: "."
-          output-file: "sbom.cyclonedx.json"
-          output-format: "cyclonedx-json"
-
-      - name: Upload Syft SBOM Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: syft-sbom
-          path: sbom.cyclonedx.json
-
-      # ======================================================
-
       - name: Download SpotBugs CLI + FindSecBugs Rule Pack
         run: |
           wget -O spotbugs.tgz https://github.com/spotbugs/spotbugs/releases/download/4.9.3/spotbugs-4.9.3.tgz
