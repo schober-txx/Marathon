@@ -68,12 +68,11 @@ jobs:
 
       - name: Syft SBOM Generator
         id: sbom
-        uses: anchore/sbom-action@v0.15.11 # latest as of June 2025
+        uses: anchore/scan-action@be7a22da4f22dde446c4c4c099887ff5b256526c
         with:
           image: "."
           output-file: "sbom.cyclonedx.json"
           output-format: "cyclonedx-json"
-          artifact-name: "syft-sbom"
 
       - name: Upload Syft SBOM Artifact
         uses: actions/upload-artifact@v4
